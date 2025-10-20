@@ -5,6 +5,7 @@ import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import connectDB from './config/db';
 import userRoute from './routes/user.routes';
+import errorHandler from './middlewares/error.middleware';
 
 const app = express();
 app.use(express.json({ limit: '10mb' }));
@@ -18,7 +19,7 @@ app.use(
   })
 );
 app.use('/users', userRoute);
-
+app.use(errorHandler)
 connectDB().then(() => {
   app.listen(3000, () => {
     console.log('Server running on port 3000');

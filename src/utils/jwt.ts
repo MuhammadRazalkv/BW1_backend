@@ -32,13 +32,13 @@ export const generateRefreshToken = (userId: string) => {
 };
 
 // Verify Access Token
-export const verifyAccessToken = (token: string): string => {
-  return jwt.verify(token, ACCESS_SECRET) as string;
+export const verifyAccessToken = (token: string): { id: string } => {
+  return jwt.verify(token, ACCESS_SECRET) as { id: string };
 };
 
 // Verify Refresh Token
-export const verifyRefreshToken = (token: string): string => {
-  return jwt.verify(token, REFRESH_SECRET) as string;
+export const verifyRefreshToken = (token: string): { id: string } => {
+  return jwt.verify(token, REFRESH_SECRET) as { id: string };
 };
 
 // Verify Forgot Password Token

@@ -23,6 +23,7 @@ export const messages = {
   LOGIN_SUCCESS: 'Login successful.',
   LOGOUT_SUCCESS: 'Logout successful.',
   TOKEN_EXPIRED: 'Session expired. Please login again.',
+  INVALID_TOKEN: 'Invalid token provided.',
   TOKEN_NOTFOUND: 'Session expired. Please login again.',
   DATABASE_OPERATION_FAILED: 'Data base operation failed.',
 };

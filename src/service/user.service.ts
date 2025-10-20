@@ -1,7 +1,7 @@
 import { messages } from '../constants/httpStatusMessages';
 import { HttpStatus } from '../constants/statusCodes';
 import { html } from '../constants/verification';
-import { SignupSchema } from '../dto/req.dto';
+import { SignupFormData, UpdateSchema } from '../dto/req.dto';
 import User from '../model/user.model';
 import { AppError } from '../utils/app.error';
 import { comparePassword, hashPassword } from '../utils/hashing';
@@ -9,10 +9,11 @@ import {
   decodeVerificationToken,
   generateBothTokens,
   generateVerificationToken,
+  verifyRefreshToken,
 } from '../utils/jwt';
 import sendEmail from '../utils/mailsender';
 
-export const newUser = async (data: SignupSchema): Promise<string> => {
+export const newUser = async (data: SignupFormData): Promise<string> => {
   try {
     const updatedData = { ...data, password: await hashPassword(data.password) };
     const user = await User.create(updatedData);
@@ -76,4 +77,85 @@ export const userLogin = async (password: string, email?: string, phone?: string
     throw new AppError(HttpStatus.BAD_REQUEST, messages.INVALID_LOGIN_CREDENTIALS);
   }
   return generateBothTokens(user.id);
+};
+export const findUserById = async (userId: string) => {
+  return await User.findById(userId);
+};
+export const userProfile = async (userId: string) => {
+  const user = await User.findById(userId);
+  if (!user) {
+    throw new AppError(HttpStatus.NOT_FOUND, messages.NOT_FOUND);
+  }
+  return {
+    firstName: user.firstName,
+    lastName: user.lastName,
+    email: user.email,
+    phone: user.phone,
+    dob: user.dob,
+    profilePic: user.profilePic,
+  };
+};
+
+export const verifyTokens = async (
+  token: string
+): Promise<{
+  accessToken: string;
+  refreshToken: string;
+}> => {
+  if (!token) {
+    throw new AppError(HttpStatus.UNAUTHORIZED, messages.TOKEN_NOTFOUND);
+  }
+
+  const refresh = verifyRefreshToken(token);
+  if (!refresh) {
+    throw new AppError(HttpStatus.BAD_REQUEST, messages.INVALID_TOKEN);
+  }
+
+  return generateBothTokens(refresh.id);
+};
+
+export const updateUserInfo = async (
+  userId: string,
+  field: keyof UpdateSchema,
+  value: string
+) => {
+  try {
+    let data: string | number | Date = value;
+
+    if (field === 'dob') {
+      data = new Date(value);
+    }else if (field === 'phone') {
+      data = parseInt(value)
+    }
+
+    const user = await User.findByIdAndUpdate(
+      userId,
+      { [field]: data },
+      { new: true, runValidators: true }
+    );
+
+    if (!user) {
+      throw new AppError(HttpStatus.NOT_FOUND, 'Failed to update user');
+    }
+
+    return {
+      firstName: user.firstName,
+      lastName: user.lastName,
+      email: user.email,
+      phone: user.phone,
+      dob: user.dob,
+      profilePic: user.profilePic,
+    };
+  } catch (error: any) {
+    if (error.code === 11000) {
+      const field = Object.keys(error.keyPattern)[0];
+      const info = field === 'phone' ? 'number' : 'address';
+      throw new AppError(
+        HttpStatus.CONFLICT,
+        `${field.charAt(0).toUpperCase() + field.slice(1)} ${info} already exists`
+      );
+    }
+
+    throw new AppError(HttpStatus.INTERNAL_SERVER_ERROR, 'Error updating user info');
+  }
 };

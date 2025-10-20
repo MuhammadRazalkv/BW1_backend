@@ -1,15 +1,20 @@
 import { NextFunction, Request, Response } from 'express';
 import { validate } from '../utils/validate.zod';
-import { signupSchema } from '../dto/req.dto';
+import { fieldSchemas, SignupFormData, signupSchema, UpdateSchema } from '../dto/req.dto';
 import {
   newUser,
   resendVerificationEmailAddress,
+  updateUserInfo,
   userLogin,
+  userProfile,
   verifyEmailAddress,
+  verifyTokens,
 } from '../service/user.service';
 import { sendSuccess } from '../utils/response.util';
 import { HttpStatus } from '../constants/statusCodes';
 import { messages } from '../constants/httpStatusMessages';
+import { ExtendedRequest } from '../middlewares/auth.middleware';
+import { AppError } from '../utils/app.error';
 
 export const createUser = async (req: Request, res: Response, next: NextFunction) => {
   try {
@@ -50,6 +55,62 @@ export const login = async (req: Request, res: Response, next: NextFunction) => 
       maxAge: 7 * 24 * 60 * 60 * 1000,
     });
     sendSuccess(res, HttpStatus.OK, { accessToken });
+  } catch (error) {
+    next(error);
+  }
+};
+export const userInfo = async (req: ExtendedRequest, res: Response, next: NextFunction) => {
+  try {
+    const id = req.id;
+    if (!id) {
+      throw new AppError(HttpStatus.BAD_REQUEST, messages.TOKEN_NOTFOUND);
+    }
+    const user = await userProfile(id);
+    console.log(user);
+
+    sendSuccess(res, HttpStatus.OK, { user });
+  } catch (error) {
+    next(error);
+  }
+};
+export const updateUser = async (req: ExtendedRequest, res: Response, next: NextFunction) => {
+  try {
+    const id = req.id;
+    if (!id) {
+      throw new AppError(HttpStatus.BAD_REQUEST, messages.TOKEN_NOTFOUND);
+    }
+    const field = req.body.field as keyof UpdateSchema;
+    const validatedValue = validate(fieldSchemas[field], req.body.value);
+    const user = await updateUserInfo(id, field, validatedValue as string);
+
+    sendSuccess(res, HttpStatus.OK, { user }, messages.UPDATED);
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const refreshToken = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> => {
+  try {
+    const token = req.cookies?.refreshToken;
+
+    if (!token) {
+      throw new AppError(HttpStatus.UNAUTHORIZED, messages.TOKEN_NOTFOUND);
+    }
+
+    const { accessToken, refreshToken } = await verifyTokens(token);
+
+    res.cookie('refreshToken', refreshToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict',
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+    });
+
+    sendSuccess(res, HttpStatus.CREATED, { accessToken });
   } catch (error) {
     next(error);
   }
