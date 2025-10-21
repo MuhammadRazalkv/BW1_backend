@@ -12,6 +12,7 @@ export const messages = {
   INVALID_LOGIN_CREDENTIALS:'Invalid email or password',
   PASSWORD_NOT_MATCH:'Incorrect current password. Please try again.',
   NOT_ENOUGH_PREF:'Add minimum of one preference',
+  NO_FILE_UPLOADED:'No file uploaded',
   // Success messages
   CREATED: 'Resource created successfully.',
   UPDATED: 'Resource updated successfully.',

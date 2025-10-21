@@ -8,6 +8,7 @@ import {
   updatePassword,
   updateUserInfo,
   updateUserPref,
+  updateUserProfileImg,
   userLogin,
   userProfile,
   verifyEmailAddress,
@@ -149,6 +150,28 @@ export const changePassword = async (
   }
 };
 
+export const updateProfileImg = async (
+  req: ExtendedRequest,
+  res: Response,
+  next: NextFunction
+): Promise<void> => {
+  try {
+    const id = req.id;
+    if (!id) {
+      throw new AppError(HttpStatus.BAD_REQUEST, messages.TOKEN_NOTFOUND);
+    }
+    if (!req.file) {
+      console.log('No file found');
+      
+      throw new AppError(HttpStatus.BAD_REQUEST, messages.NO_FILE_UPLOADED);
+    }
+    const fileUrl = req.file.path;
+    const url = await updateUserProfileImg(id, fileUrl);
+    sendSuccess(res, HttpStatus.CREATED, { url });
+  } catch (error) {
+    next(error);
+  }
+};
 export const refreshToken = async (
   req: Request,
   res: Response,

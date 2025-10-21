@@ -10,10 +10,12 @@ import {
   getPreferences,
   changePassword,
   updatePreferences,
+  updateProfileImg,
 } from '../controller/user.controller';
 import { authMiddleware } from '../middlewares/auth.middleware';
+import uploadMiddleware from '../utils/multer';
 const userRoute = Router();
-
+const upload = uploadMiddleware('user-profile');
 userRoute
   .post('/user', createUser)
   .get('/verify-email', verifyEmail)
@@ -24,5 +26,6 @@ userRoute
   .patch('/user', authMiddleware, updateUser)
   .get('/preferences', authMiddleware, getPreferences)
   .patch('/change-password', authMiddleware, changePassword)
-  .patch('/preferences', authMiddleware, updatePreferences);
+  .patch('/preferences', authMiddleware, updatePreferences)
+  .post('/upload-profile', authMiddleware, upload.single('profilePic'), updateProfileImg);
 export default userRoute;

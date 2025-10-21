@@ -188,3 +188,11 @@ export const updateUserPref = async (userId: string, preference: string[]) => {
   }
   return user.preferences;
 };
+
+export const updateUserProfileImg = async (userId: string, url: string) => {
+  const user = await User.findByIdAndUpdate(userId, { profilePic: url });
+  if (!user) {
+    throw new AppError(HttpStatus.NOT_FOUND, messages.NOT_FOUND);
+  }
+  return user.profilePic;
+};
