@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from 'express';
 import { validate } from '../utils/validate.zod';
-import { fieldSchemas, SignupFormData, signupSchema, UpdateSchema } from '../dto/req.dto';
+import { fieldSchemas, signupSchema, UpdateSchema } from '../dto/req.dto';
 import {
   getUserPreferences,
   newUser,
@@ -161,8 +161,6 @@ export const updateProfileImg = async (
       throw new AppError(HttpStatus.BAD_REQUEST, messages.TOKEN_NOTFOUND);
     }
     if (!req.file) {
-      console.log('No file found');
-      
       throw new AppError(HttpStatus.BAD_REQUEST, messages.NO_FILE_UPLOADED);
     }
     const fileUrl = req.file.path;
