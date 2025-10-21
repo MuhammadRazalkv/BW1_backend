@@ -10,6 +10,7 @@ export const messages = {
   CONFLICT: 'The resource already exists or there is a conflict.',
   UNPROCESSABLE: 'Validation failed. Please check your data.',
   INVALID_LOGIN_CREDENTIALS:'Invalid email or password',
+  PASSWORD_NOT_MATCH:'Incorrect current password. Please try again.',
   // Success messages
   CREATED: 'Resource created successfully.',
   UPDATED: 'Resource updated successfully.',

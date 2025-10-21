@@ -2,8 +2,10 @@ import { NextFunction, Request, Response } from 'express';
 import { validate } from '../utils/validate.zod';
 import { fieldSchemas, SignupFormData, signupSchema, UpdateSchema } from '../dto/req.dto';
 import {
+  getUserPreferences,
   newUser,
   resendVerificationEmailAddress,
+  updatePassword,
   updateUserInfo,
   userLogin,
   userProfile,
@@ -15,6 +17,7 @@ import { HttpStatus } from '../constants/statusCodes';
 import { messages } from '../constants/httpStatusMessages';
 import { ExtendedRequest } from '../middlewares/auth.middleware';
 import { AppError } from '../utils/app.error';
+import { passwordSchema } from '../dto/password.dto';
 
 export const createUser = async (req: Request, res: Response, next: NextFunction) => {
   try {
@@ -84,6 +87,40 @@ export const updateUser = async (req: ExtendedRequest, res: Response, next: Next
     const user = await updateUserInfo(id, field, validatedValue as string);
 
     sendSuccess(res, HttpStatus.OK, { user }, messages.UPDATED);
+  } catch (error) {
+    next(error);
+  }
+};
+export const getPreferences = async (req: ExtendedRequest, res: Response, next: NextFunction) => {
+  try {
+    const id = req.id;
+    if (!id) {
+      throw new AppError(HttpStatus.BAD_REQUEST, messages.TOKEN_NOTFOUND);
+    }
+
+    const preferences = await getUserPreferences(id);
+
+    sendSuccess(res, HttpStatus.OK, { preferences });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const changePassword = async (
+  req: ExtendedRequest,
+  res: Response,
+  next: NextFunction
+): Promise<void> => {
+  try {
+    const id = req.id;
+    if (!id) {
+      throw new AppError(HttpStatus.BAD_REQUEST, messages.TOKEN_NOTFOUND);
+    }
+    const data = validate(passwordSchema, req.body);
+    console.log(data);
+    
+    await updatePassword(id, data.currentPassword, data.newPassword);
+    sendSuccess(res, HttpStatus.OK, {}, messages.UPDATED);
   } catch (error) {
     next(error);
   }

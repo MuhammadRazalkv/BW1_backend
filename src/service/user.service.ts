@@ -114,18 +114,14 @@ export const verifyTokens = async (
   return generateBothTokens(refresh.id);
 };
 
-export const updateUserInfo = async (
-  userId: string,
-  field: keyof UpdateSchema,
-  value: string
-) => {
+export const updateUserInfo = async (userId: string, field: keyof UpdateSchema, value: string) => {
   try {
     let data: string | number | Date = value;
 
     if (field === 'dob') {
       data = new Date(value);
-    }else if (field === 'phone') {
-      data = parseInt(value)
+    } else if (field === 'phone') {
+      data = parseInt(value);
     }
 
     const user = await User.findByIdAndUpdate(
@@ -157,5 +153,30 @@ export const updateUserInfo = async (
     }
 
     throw new AppError(HttpStatus.INTERNAL_SERVER_ERROR, 'Error updating user info');
+  }
+};
+
+export const getUserPreferences = async (userId: string) => {
+  const user = await User.findById(userId);
+  if (!user) {
+    throw new AppError(HttpStatus.NOT_FOUND, messages.NOT_FOUND);
+  }
+  return user.preferences || [];
+};
+
+export const updatePassword = async (userId: string, currPassword: string, newPassword: string) => {
+  const user = await User.findById(userId);
+  if (!user) {
+    throw new AppError(HttpStatus.NOT_FOUND, messages.NOT_FOUND);
+  }
+  const isPasswordMatch = await comparePassword(currPassword, user.password);
+  if (!isPasswordMatch) {
+    throw new AppError(HttpStatus.BAD_REQUEST, messages.PASSWORD_NOT_MATCH);
+  }
+  const updatedUser = await User.findByIdAndUpdate(userId, {
+    password: await hashPassword(newPassword),
+  });
+  if (!updatedUser) {
+    throw new AppError(HttpStatus.BAD_REQUEST, 'Failed to update password');
   }
 };
