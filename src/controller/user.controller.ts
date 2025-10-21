@@ -7,6 +7,7 @@ import {
   resendVerificationEmailAddress,
   updatePassword,
   updateUserInfo,
+  updateUserPref,
   userLogin,
   userProfile,
   verifyEmailAddress,
@@ -91,6 +92,28 @@ export const updateUser = async (req: ExtendedRequest, res: Response, next: Next
     next(error);
   }
 };
+export const updatePreferences = async (
+  req: ExtendedRequest,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const id = req.id;
+    if (!id) {
+      throw new AppError(HttpStatus.BAD_REQUEST, messages.TOKEN_NOTFOUND);
+    }
+    const value = req.body;
+    if (!value.length) {
+      throw new AppError(HttpStatus.BAD_REQUEST, messages.NOT_ENOUGH_PREF);
+    }
+
+    const preferences = await updateUserPref(id, value);
+
+    sendSuccess(res, HttpStatus.OK, { preferences }, messages.UPDATED);
+  } catch (error) {
+    next(error);
+  }
+};
 export const getPreferences = async (req: ExtendedRequest, res: Response, next: NextFunction) => {
   try {
     const id = req.id;
@@ -118,7 +141,7 @@ export const changePassword = async (
     }
     const data = validate(passwordSchema, req.body);
     console.log(data);
-    
+
     await updatePassword(id, data.currentPassword, data.newPassword);
     sendSuccess(res, HttpStatus.OK, {}, messages.UPDATED);
   } catch (error) {

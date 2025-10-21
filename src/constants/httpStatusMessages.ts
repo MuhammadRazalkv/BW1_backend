@@ -11,6 +11,7 @@ export const messages = {
   UNPROCESSABLE: 'Validation failed. Please check your data.',
   INVALID_LOGIN_CREDENTIALS:'Invalid email or password',
   PASSWORD_NOT_MATCH:'Incorrect current password. Please try again.',
+  NOT_ENOUGH_PREF:'Add minimum of one preference',
   // Success messages
   CREATED: 'Resource created successfully.',
   UPDATED: 'Resource updated successfully.',

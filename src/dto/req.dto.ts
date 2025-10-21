@@ -38,8 +38,8 @@ export const fieldSchemas = {
 
 export const signupSchema = z.object({
   ...fieldSchemas,
-  password: z.string().min(6, 'Password must be at least 6 characters'),
   preferences: z.array(z.string()).min(1, 'Add minimum of 1 preferences'),
+  password: z.string().min(6, 'Password must be at least 6 characters'),
 });
 
 export type UpdateSchema = z.infer<typeof fieldSchemas>;

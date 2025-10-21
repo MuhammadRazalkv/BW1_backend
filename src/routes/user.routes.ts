@@ -9,6 +9,7 @@ import {
   updateUser,
   getPreferences,
   changePassword,
+  updatePreferences,
 } from '../controller/user.controller';
 import { authMiddleware } from '../middlewares/auth.middleware';
 const userRoute = Router();
@@ -22,5 +23,6 @@ userRoute
   .get('/user', authMiddleware, userInfo)
   .patch('/user', authMiddleware, updateUser)
   .get('/preferences', authMiddleware, getPreferences)
-  .patch('/change-password', authMiddleware, changePassword);
+  .patch('/change-password', authMiddleware, changePassword)
+  .patch('/preferences', authMiddleware, updatePreferences);
 export default userRoute;

@@ -180,3 +180,11 @@ export const updatePassword = async (userId: string, currPassword: string, newPa
     throw new AppError(HttpStatus.BAD_REQUEST, 'Failed to update password');
   }
 };
+
+export const updateUserPref = async (userId: string, preference: string[]) => {
+  const user = await User.findByIdAndUpdate(userId, { preferences: preference }, { new: true });
+  if (!user) {
+    throw new AppError(HttpStatus.NOT_FOUND, messages.NOT_FOUND);
+  }
+  return user.preferences;
+};
