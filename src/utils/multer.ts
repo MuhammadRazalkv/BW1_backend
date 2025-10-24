@@ -10,8 +10,7 @@ function uploadMiddleware(folderName: string) {
       const folderPath = `${folderName.trim()}`;
       const fileExtension = path.extname(file.originalname).substring(1);
       const publicId = `${file.fieldname}-${Date.now()}`;
-      console.log('in cloudinary',folderPath);
-        
+
       return {
         folder: folderPath,
         public_id: publicId,
@@ -28,4 +27,4 @@ function uploadMiddleware(folderName: string) {
   });
 }
 
-export default uploadMiddleware
+export default uploadMiddleware;

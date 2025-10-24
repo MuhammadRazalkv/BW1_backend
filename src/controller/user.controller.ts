@@ -176,6 +176,8 @@ export const refreshToken = async (
   next: NextFunction
 ): Promise<void> => {
   try {
+    console.log('refresh token route ');
+    
     const token = req.cookies?.refreshToken;
 
     if (!token) {

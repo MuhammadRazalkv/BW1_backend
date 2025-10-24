@@ -8,7 +8,9 @@ export interface IArticle extends Document {
   author: ObjectId;
   likes: ObjectId[];
   dislikes: ObjectId[];
+  blocks: ObjectId[];
   tags: string[];
+  createdAt?: Date;
 }
 
 const articleSchema = new Schema<IArticle>(
@@ -20,6 +22,7 @@ const articleSchema = new Schema<IArticle>(
     author: { type: Schema.Types.ObjectId, ref: 'User', required: true },
     likes: [{ type: Schema.Types.ObjectId, ref: 'User' }],
     dislikes: [{ type: Schema.Types.ObjectId, ref: 'User' }],
+    blocks: [{ type: Schema.Types.ObjectId, ref: 'User' }],
     tags: [{ type: String, trim: true }],
   },
   { timestamps: true }
