@@ -56,7 +56,7 @@ export const getUserArticles = async (req: ExtendedRequest, res: Response, next:
     const page = Number(req.query.page) || 1;
     const { articles, totalArticles, totalPages } = await userArticles(userId, page);
     console.log(articles, totalArticles, totalPages);
-    
+
     sendSuccess(res, HttpStatus.OK, { articles, totalPages, totalArticles });
   } catch (error) {
     next(error);

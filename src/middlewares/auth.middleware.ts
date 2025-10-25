@@ -33,7 +33,6 @@ export const authMiddleware = async (req: ExtendedRequest, res: Response, next: 
   } catch (error: any) {
     console.log(error);
     if (error.name === 'TokenExpiredError') {
-      
       sendError(res, HttpStatus.UNAUTHORIZED, messages.TOKEN_EXPIRED);
       return;
     }

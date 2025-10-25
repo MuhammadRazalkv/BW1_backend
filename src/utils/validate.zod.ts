@@ -1,6 +1,6 @@
-import { ZodType } from "zod";
-import { AppError } from "./app.error";
-import { HttpStatus } from "../constants/statusCodes";
+import { ZodType } from 'zod';
+import { AppError } from './app.error';
+import { HttpStatus } from '../constants/statusCodes';
 
 export function validate<T>(schema: ZodType<T>, data: unknown): T {
   const result = schema.safeParse(data);

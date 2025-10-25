@@ -41,8 +41,6 @@ export const verifyRefreshToken = (token: string): { id: string } => {
   return jwt.verify(token, REFRESH_SECRET) as { id: string };
 };
 
-
-
 export const generateBothTokens = (id: string) => ({
   accessToken: generateAccessToken(id),
   refreshToken: generateRefreshToken(id),

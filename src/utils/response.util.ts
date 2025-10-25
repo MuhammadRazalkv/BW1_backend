@@ -14,7 +14,7 @@ export const sendSuccess = <T extends object>(
   res: Response,
   statusCode: number,
   payload: T,
-  message?: string,
+  message?: string
 ) => {
   const response: SuccessResponse<T> = {
     success: true,
