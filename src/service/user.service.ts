@@ -72,7 +72,7 @@ export const userLogin = async (password: string, email?: string, phone?: string
   if (!user.isVerified) {
     throw new AppError(HttpStatus.UNAUTHORIZED, messages.ACCOUNT_NOT_VERIFIED);
   }
-  const isPasswordMatch = comparePassword(password, user.password);
+  const isPasswordMatch = await comparePassword(password, user.password);
   if (!isPasswordMatch) {
     throw new AppError(HttpStatus.BAD_REQUEST, messages.INVALID_LOGIN_CREDENTIALS);
   }
