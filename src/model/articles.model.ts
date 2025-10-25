@@ -1,14 +1,14 @@
-import mongoose, { Schema, Document, ObjectId } from 'mongoose';
+import mongoose, { Schema, Document, Types } from 'mongoose';
 
 export interface IArticle extends Document {
   title: string;
   content: string;
   imageUrl?: string;
   category: string;
-  author: ObjectId;
-  likes: ObjectId[];
-  dislikes: ObjectId[];
-  blocks: ObjectId[];
+  author: Types.ObjectId;
+  likes: Types.ObjectId[];
+  dislikes: Types.ObjectId[];
+  blocks: Types.ObjectId[];
   tags: string[];
   createdAt?: Date;
 }

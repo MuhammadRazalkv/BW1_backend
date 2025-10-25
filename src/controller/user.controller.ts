@@ -177,7 +177,7 @@ export const refreshToken = async (
 ): Promise<void> => {
   try {
     console.log('refresh token route ');
-    
+
     const token = req.cookies?.refreshToken;
 
     if (!token) {
@@ -194,6 +194,15 @@ export const refreshToken = async (
     });
 
     sendSuccess(res, HttpStatus.CREATED, { accessToken });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const logout = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  try {
+    res.clearCookie('refreshToken');
+    sendSuccess(res, HttpStatus.OK, {});
   } catch (error) {
     next(error);
   }

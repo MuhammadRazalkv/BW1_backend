@@ -6,7 +6,11 @@ import { messages } from '../constants/httpStatusMessages';
 import { HttpStatus } from '../constants/statusCodes';
 import { AppError } from '../utils/app.error';
 import {
+  bArticle,
+  changeReaction,
+  deleteArticleInfo,
   getArticleInfo,
+  getArticleList,
   newArticle,
   updateArticleInfo,
   userArticles,
@@ -51,8 +55,9 @@ export const getUserArticles = async (req: ExtendedRequest, res: Response, next:
     }
     const page = Number(req.query.page) || 1;
     const { articles, totalArticles, totalPages } = await userArticles(userId, page);
-
-    sendSuccess(res, HttpStatus.CREATED, { articles, totalPages, totalArticles }, messages.CREATED);
+    console.log(articles, totalArticles, totalPages);
+    
+    sendSuccess(res, HttpStatus.OK, { articles, totalPages, totalArticles });
   } catch (error) {
     next(error);
   }
@@ -65,7 +70,7 @@ export const getArticle = async (req: ExtendedRequest, res: Response, next: Next
     }
     const articleId = req.params.id as string;
 
-    const article = await getArticleInfo(articleId);
+    const article = await getArticleInfo(userId, articleId);
 
     sendSuccess(res, HttpStatus.OK, { article });
   } catch (error) {
@@ -82,7 +87,7 @@ export const updateArticle = async (req: ExtendedRequest, res: Response, next: N
       if (Array.isArray(req.body.tags)) tags = req.body.tags;
       else if (typeof req.body.tags === 'string') tags = [req.body.tags];
     }
-    const articleId = req.body.articleId
+    const articleId = req.body.articleId;
     const articleData = {
       title: req.body.title,
       content: req.body.content,
@@ -94,9 +99,64 @@ export const updateArticle = async (req: ExtendedRequest, res: Response, next: N
 
     const data = validate(articleSchema, articleData);
 
-    await updateArticleInfo(userId,articleId, data);
+    await updateArticleInfo(userId, articleId, data);
 
     sendSuccess(res, HttpStatus.OK, {}, messages.UPDATED);
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const articleList = async (req: ExtendedRequest, res: Response, next: NextFunction) => {
+  try {
+    const userId = req.id;
+    if (!userId) {
+      throw new AppError(HttpStatus.BAD_REQUEST, messages.TOKEN_NOTFOUND);
+    }
+    const page = Number(req.query.page) || 1;
+    const { articles, hasMore } = await getArticleList(userId, page);
+
+    sendSuccess(res, HttpStatus.OK, { articles, hasMore });
+  } catch (error) {
+    next(error);
+  }
+};
+export const toggleReaction = async (req: ExtendedRequest, res: Response, next: NextFunction) => {
+  try {
+    const userId = req.id;
+    if (!userId) {
+      throw new AppError(HttpStatus.BAD_REQUEST, messages.TOKEN_NOTFOUND);
+    }
+    const { articleId, reaction } = req.body;
+    const { dislikes, likes, userReaction } = await changeReaction(userId, articleId, reaction);
+
+    sendSuccess(res, HttpStatus.OK, { likes, dislikes, userReaction }, messages.UPDATED);
+  } catch (error) {
+    next(error);
+  }
+};
+export const blockArticle = async (req: ExtendedRequest, res: Response, next: NextFunction) => {
+  try {
+    const userId = req.id;
+    if (!userId) {
+      throw new AppError(HttpStatus.BAD_REQUEST, messages.TOKEN_NOTFOUND);
+    }
+    const { articleId } = req.body;
+    await bArticle(userId, articleId);
+    sendSuccess(res, HttpStatus.OK, {}, messages.UPDATED);
+  } catch (error) {
+    next(error);
+  }
+};
+export const deleteArticle = async (req: ExtendedRequest, res: Response, next: NextFunction) => {
+  try {
+    const userId = req.id;
+    if (!userId) {
+      throw new AppError(HttpStatus.BAD_REQUEST, messages.TOKEN_NOTFOUND);
+    }
+    const { articleId } = req.query;
+    await deleteArticleInfo(userId, articleId as string);
+    sendSuccess(res, HttpStatus.OK, {}, messages.DELETED);
   } catch (error) {
     next(error);
   }

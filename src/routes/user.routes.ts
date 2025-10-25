@@ -11,6 +11,7 @@ import {
   changePassword,
   updatePreferences,
   updateProfileImg,
+  logout,
 } from '../controller/user.controller';
 import { authMiddleware } from '../middlewares/auth.middleware';
 import uploadMiddleware from '../utils/multer';
@@ -27,5 +28,6 @@ userRoute
   .get('/preferences', authMiddleware, getPreferences)
   .patch('/change-password', authMiddleware, changePassword)
   .patch('/preferences', authMiddleware, updatePreferences)
-  .post('/upload-profile', authMiddleware, upload.single('profilePic'), updateProfileImg);
+  .post('/upload-profile', authMiddleware, upload.single('profilePic'), updateProfileImg)
+  .post('/logout', authMiddleware, logout);
 export default userRoute;

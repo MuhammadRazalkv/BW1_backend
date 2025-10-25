@@ -1,4 +1,4 @@
-import mongoose, { Schema, model, Document, ObjectId } from 'mongoose';
+import mongoose, { Schema, model, Document, Types } from 'mongoose';
 
 export interface IUser extends Document {
   googleId?: string;
@@ -11,9 +11,9 @@ export interface IUser extends Document {
   profilePic?: string;
   password: string;
   preferences: string[];
-  blockedArticles: ObjectId[];
-  likedArticles: ObjectId[];
-  dislikedArticles: ObjectId[];
+  blockedArticles: Types.ObjectId[];
+  // likedArticles: ObjectId[];
+  // dislikedArticles: ObjectId[];
 }
 
 const userSchema = new Schema<IUser>(
@@ -28,9 +28,9 @@ const userSchema = new Schema<IUser>(
     profilePic: { type: String },
     dob: { type: Date, required: true },
     preferences: { type: [String], default: [] },
-    dislikedArticles: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Article' }],
-    likedArticles: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Article' }],
-    blockedArticles: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Article' }],
+    // dislikedArticles: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Article' }],
+    // likedArticles: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Article' }],
+    blockedArticles: [{ type: Schema.Types.ObjectId, ref: 'Article' }],
   },
   { timestamps: true }
 );
