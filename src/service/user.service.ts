@@ -19,7 +19,10 @@ export const newUser = async (data: SignupFormData): Promise<string> => {
     const user = await User.create(updatedData);
     const token = generateVerificationToken(user.id);
     const link = `${process.env.FRONTEND_URL}/verify-email?token=${token}`;
-    sendEmail(user.email, 'Verify Your Email', html(link));
+    sendEmail(user.email, 'Verify Your Email', html(link)).catch((err) => {
+      console.error(err)
+      throw new AppError(HttpStatus.INTERNAL_SERVER_ERROR, messages.SERVER_ERROR);
+    });
     return user.email;
   } catch (error: any) {
     if (error.code === 11000) {
