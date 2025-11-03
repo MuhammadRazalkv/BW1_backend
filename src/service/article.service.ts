@@ -2,7 +2,7 @@ import mongoose from 'mongoose';
 import { messages } from '../constants/httpStatusMessages';
 import { HttpStatus } from '../constants/statusCodes';
 import { ArticleFormData } from '../dto/article.dto';
-import { Article, IArticle } from '../model/articles.model';
+import Article, { IArticle } from '../model/articles.model';
 import { AppError } from '../utils/app.error';
 import User from '../model/user.model';
 export const newArticle = async (userId: string, data: Partial<IArticle>) => {

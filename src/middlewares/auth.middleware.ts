@@ -1,8 +1,7 @@
-import jwt from 'jsonwebtoken';
 import { Request, Response, NextFunction } from 'express';
 import { HttpStatus } from '../constants/statusCodes';
 import { messages } from '../constants/httpStatusMessages';
-import { findUserById } from '../service/user.service';
+import { userService } from '../routes/user.routes';
 import { sendError } from '../utils/response.util';
 import { verifyAccessToken } from '../utils/jwt';
 
@@ -24,7 +23,7 @@ export const authMiddleware = async (req: ExtendedRequest, res: Response, next: 
     const decoded = verifyAccessToken(token);
     req.id = decoded.id;
 
-    const user = await findUserById(req.id);
+    const user = await userService.findUserById(req.id);
     if (!user) {
       sendError(res, HttpStatus.NOT_FOUND, messages.NOT_FOUND);
       return;
