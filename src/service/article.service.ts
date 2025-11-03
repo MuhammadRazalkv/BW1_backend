@@ -66,8 +66,9 @@ export default class ArticleService implements IArticleService {
       throw new AppError(HttpStatus.FORBIDDEN, messages.FORBIDDEN);
     }
     const userObjId = new mongoose.Types.ObjectId(userId);
-    const hasLiked = article.likes.includes(userObjId);
-    const hasDisLiked = article.dislikes.includes(userObjId);
+
+    const hasLiked = article.likes.some((id) => id.equals(userObjId));
+    const hasDisLiked = article.dislikes.some((id) => id.equals(userObjId));
 
     return {
       id: String(article._id),
