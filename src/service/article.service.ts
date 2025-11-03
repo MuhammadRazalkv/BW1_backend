@@ -36,7 +36,7 @@ export default class ArticleService implements IArticleService {
 
     const totalPages = Math.ceil(totalArticles / limit);
     const updatedArticles = articles.map((ar) => ({
-      id: ar.id as string,
+      id: String(ar._id),
       title: ar.title,
       imageUrl: ar.imageUrl,
       category: ar.category,
@@ -70,7 +70,7 @@ export default class ArticleService implements IArticleService {
     const hasDisLiked = article.dislikes.includes(userObjId);
 
     return {
-      id: article.id as string,
+      id: String(article._id),
       title: article.title,
       content: article.content,
       imageUrl: article.imageUrl,

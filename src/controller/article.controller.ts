@@ -127,6 +127,7 @@ export default class ArticleController implements IArticleController {
         throw new AppError(HttpStatus.BAD_REQUEST, messages.TOKEN_NOTFOUND);
       }
       const { articleId, reaction } = req.body;
+      console.log('ArticleId: ',articleId)
       const { dislikes, likes, userReaction } = await this._articleService.changeReaction(
         userId,
         articleId,
