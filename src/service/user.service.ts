@@ -142,10 +142,7 @@ export default class UserService implements IUserService {
         data = parseInt(value);
       }
 
-      const user = await this._userRepo.updateById(
-        userId,
-        { [field]: data },
-      );
+      const user = await this._userRepo.updateById(userId, { [field]: data });
 
       if (!user) {
         throw new AppError(HttpStatus.NOT_FOUND, 'Failed to update user');

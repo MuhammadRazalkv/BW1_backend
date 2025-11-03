@@ -28,4 +28,4 @@ const articleSchema = new Schema<IArticle>(
   { timestamps: true }
 );
 
-export default  mongoose.model<IArticle>('Article', articleSchema);
+export default mongoose.model<IArticle>('Article', articleSchema);

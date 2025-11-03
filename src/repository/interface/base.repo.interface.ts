@@ -12,7 +12,7 @@ export interface IBaseRepository<T extends Document> {
     options?: {
       upsert?: boolean;
       new?: boolean;
-    },
+    }
   ): Promise<any>;
   findAll(
     filter?: FilterQuery<T>,
@@ -21,7 +21,7 @@ export interface IBaseRepository<T extends Document> {
       skip?: number;
       limit?: number;
     },
-    projection?: Record<string, 1 | 0>,
+    projection?: Record<string, 1 | 0>
   ): Promise<T[]>;
   countDocuments(filter?: FilterQuery<T>): Promise<number>;
 }

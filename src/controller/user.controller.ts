@@ -11,7 +11,7 @@ import { IUserController } from './interfaces/user.controller.interface';
 import { IUserService } from '../service/interfaces/user.service.interface';
 
 export default class UserController implements IUserController {
-  constructor(private _userService:IUserService) {}
+  constructor(private _userService: IUserService) {}
 
   createUser = async (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -47,7 +47,11 @@ export default class UserController implements IUserController {
     try {
       const { email, phone, password } = req.body;
 
-      const { accessToken, refreshToken } = await this._userService.userLogin(password, email, phone);
+      const { accessToken, refreshToken } = await this._userService.userLogin(
+        password,
+        email,
+        phone
+      );
       res.cookie('refreshToken', refreshToken, {
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
@@ -59,7 +63,7 @@ export default class UserController implements IUserController {
       next(error);
     }
   };
-  
+
   userInfo = async (req: ExtendedRequest, res: Response, next: NextFunction) => {
     try {
       const id = req.id;
@@ -195,5 +199,4 @@ export default class UserController implements IUserController {
       next(error);
     }
   };
-
 }

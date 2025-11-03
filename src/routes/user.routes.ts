@@ -10,7 +10,6 @@ const controller = new UserController(userService);
 const userRoute = Router();
 const upload = uploadMiddleware('user-profile');
 
-
 userRoute
   .post('/user', controller.createUser)
   .get('/verify-email', controller.verifyEmail)
@@ -25,5 +24,4 @@ userRoute
   .post('/upload-profile', authMiddleware, upload.single('profilePic'), controller.updateProfileImg)
   .post('/logout', authMiddleware, controller.logout);
 
-  
 export default userRoute;

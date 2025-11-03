@@ -1,7 +1,6 @@
 import { Model, Document, FilterQuery, UpdateQuery } from 'mongoose';
 import { IBaseRepository } from './interface/base.repo.interface';
 
-
 export class BaseRepository<T extends Document> implements IBaseRepository<T> {
   protected model: Model<T>;
 
@@ -35,7 +34,7 @@ export class BaseRepository<T extends Document> implements IBaseRepository<T> {
     options?: {
       upsert?: boolean;
       new?: boolean;
-    },
+    }
   ): Promise<any> {
     return this.model.findOneAndUpdate(filter, update, {
       new: options?.new ?? false,
@@ -50,7 +49,7 @@ export class BaseRepository<T extends Document> implements IBaseRepository<T> {
       skip?: number;
       limit?: number;
     },
-    projection?: Record<string, 1 | 0>,
+    projection?: Record<string, 1 | 0>
   ) {
     let query = this.model.find(filter).select(projection || {});
 
