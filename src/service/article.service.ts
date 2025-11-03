@@ -4,7 +4,6 @@ import { HttpStatus } from '../constants/statusCodes';
 import { ArticleFormData } from '../dto/article.dto';
 
 import { AppError } from '../utils/app.error';
-import User from '../model/user.model';
 import { IArticleService } from './interfaces/article.service.interface';
 import { IArticleRepo } from '../repository/interface/article.repo.interface';
 import { IUserRepo } from '../repository/interface/user.repo.interface';
@@ -37,7 +36,7 @@ export default class ArticleService implements IArticleService {
 
     const totalPages = Math.ceil(totalArticles / limit);
     const updatedArticles = articles.map((ar) => ({
-      id: ar.id,
+      id: ar.id as string,
       title: ar.title,
       imageUrl: ar.imageUrl,
       category: ar.category,
@@ -55,7 +54,7 @@ export default class ArticleService implements IArticleService {
   };
 
   getArticleInfo = async (userId: string, articleId: string) => {
-    const user = await User.findById(userId);
+    const user = await this._userRepo.findById(userId);
     if (!user) {
       throw new AppError(HttpStatus.NOT_FOUND, messages.NOT_FOUND);
     }
@@ -71,7 +70,7 @@ export default class ArticleService implements IArticleService {
     const hasDisLiked = article.dislikes.includes(userObjId);
 
     return {
-      id: article.id,
+      id: article.id as string,
       title: article.title,
       content: article.content,
       imageUrl: article.imageUrl,
@@ -98,7 +97,7 @@ export default class ArticleService implements IArticleService {
   };
 
   getArticleList = async (userId: string, page: number) => {
-    const user = await User.findById(userId);
+    const user = await this._userRepo.findById(userId);
     if (!user) {
       throw new AppError(HttpStatus.NOT_FOUND, messages.NOT_FOUND);
     }
@@ -125,7 +124,7 @@ export default class ArticleService implements IArticleService {
     });
     const totalPages = Math.ceil(totalArticles / limit);
     const updatedArticles = articles.map((ar) => ({
-      id: ar.id,
+      id: ar.id as string,
       title: ar.title,
       imageUrl: ar.imageUrl,
       category: ar.category,
@@ -206,7 +205,7 @@ export default class ArticleService implements IArticleService {
       throw new AppError(HttpStatus.NOT_FOUND, messages.NOT_FOUND);
     }
 
-    await User.updateMany(
+    await this._userRepo.update(
       { blockedArticles: { $in: [article._id] } },
       { $pull: { blockedArticles: article._id } }
     );

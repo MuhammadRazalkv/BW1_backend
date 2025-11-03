@@ -10,7 +10,7 @@ export interface IArticleService {
     page: number
   ) => Promise<{
     articles: {
-      id: any;
+      id: string;
       title: string;
       imageUrl: string | undefined;
       category: string;
@@ -27,7 +27,7 @@ export interface IArticleService {
     userId: string,
     articleId: string
   ) => Promise<{
-    id: any;
+    id: string;
     title: string;
     content: string;
     imageUrl: string | undefined;
@@ -58,7 +58,7 @@ export interface IArticleService {
     page: number
   ) => Promise<{
     articles: {
-      id: any;
+      id: string;
       title: string;
       imageUrl: string | undefined;
       category: string;
