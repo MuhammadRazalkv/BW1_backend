@@ -21,7 +21,9 @@ export const messages = {
   EMAIL_VERIFICATION_SUCCESS: 'Email verification success',
   EMAIL_HAS_SEND: 'A new verification link has been sent to your email!',
   ACCOUNT_ALREADY_VERIFIED: 'Your account is already verified please login',
-  ACCOUNT_NOT_VERIFIED: 'Your account is already verified please login',
+  ACCOUNT_NOT_VERIFIED: 'Your account is not verified please verify it to login',
+  INVALID_ID:'Invalid id provided',
+  NOT_BLOCKED:'You haven`t blocked this article',
   // Authentication
   LOGIN_SUCCESS: 'Login successful.',
   LOGOUT_SUCCESS: 'Logout successful.',

@@ -6,8 +6,10 @@ import { sendError } from '../utils/response.util';
 import { verifyAccessToken } from '../utils/jwt';
 
 const ACCESS_SECRET = process.env.ACCESS_SECRET || 'access_secret';
-export interface ExtendedRequest extends Request {
+export interface ExtendedRequest<B = any, Q = any> extends Request {
   id?: string;
+  validatedBody?: B;
+  validatedQuery?: Q;
 }
 
 export const authMiddleware = async (req: ExtendedRequest, res: Response, next: NextFunction) => {

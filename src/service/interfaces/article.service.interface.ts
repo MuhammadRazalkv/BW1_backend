@@ -81,4 +81,22 @@ export interface IArticleService {
   }>;
   bArticle: (userId: string, articleId: string) => Promise<void>;
   deleteArticleInfo: (userId: string, articleId: string) => Promise<IArticle>;
+  getBlockedArticles: (
+    userId: string,
+    page: number
+  ) => Promise<{
+    articles: {
+      id: string;
+      title: string;
+      imageUrl: string | undefined;
+      category: string;
+      likes: number;
+      dislikes: number;
+      tags: string[];
+      createdAt: Date | undefined;
+    }[];
+    totalPages: number;
+    totalArticles: number;
+  }>;
+  unblockArticleInfo: (userId: string, articleId: string) => Promise<void>;
 }

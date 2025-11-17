@@ -10,4 +10,6 @@ export interface IArticleController {
   toggleReaction: (req: ExtendedRequest, res: Response, next: NextFunction) => Promise<void>;
   blockArticle: (req: ExtendedRequest, res: Response, next: NextFunction) => Promise<void>;
   deleteArticle: (req: ExtendedRequest, res: Response, next: NextFunction) => Promise<void>;
+  blockedArticles: (req: ExtendedRequest, res: Response, next: NextFunction) => Promise<void>;
+  unblockArticle: (req: ExtendedRequest, res: Response, next: NextFunction) => Promise<void>;
 }

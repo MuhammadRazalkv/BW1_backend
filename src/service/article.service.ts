@@ -87,12 +87,22 @@ export default class ArticleService implements IArticleService {
   };
 
   updateArticleInfo = async (userId: string, articleId: string, data: ArticleFormData) => {
+    const article = await this._articleRepo.findById(articleId);
+
+    if (!article) {
+      throw new AppError(HttpStatus.NOT_FOUND, messages.NOT_FOUND);
+    }
+    const userObjectId = new mongoose.Types.ObjectId(userId);
+    if (!article.author.equals(userObjectId)) {
+      throw new AppError(HttpStatus.UNAUTHORIZED, messages.UNAUTHORIZED);
+    }
+
     const updatedData = {
       ...data,
-      author: new mongoose.Types.ObjectId(userId),
+      author: userObjectId,
     };
-    const article = await this._articleRepo.updateById(articleId, { $set: updatedData });
-    if (!article) {
+    const updatedArticle = await this._articleRepo.updateById(articleId, { $set: updatedData });
+    if (!updatedArticle) {
       throw new AppError(HttpStatus.NOT_FOUND, messages.NOT_FOUND);
     }
   };
@@ -115,7 +125,6 @@ export default class ArticleService implements IArticleService {
       },
       { limit, skip }
     );
-
     const totalArticles = await this._articleRepo.countDocuments({
       $and: [
         { category: { $in: user.preferences } },
@@ -205,6 +214,10 @@ export default class ArticleService implements IArticleService {
     if (!article) {
       throw new AppError(HttpStatus.NOT_FOUND, messages.NOT_FOUND);
     }
+    const userObjectId = new mongoose.Types.ObjectId(userId);
+    if (!article.author.equals(userObjectId)) {
+      throw new AppError(HttpStatus.UNAUTHORIZED, messages.UNAUTHORIZED);
+    }
 
     await this._userRepo.update(
       { blockedArticles: { $in: [article._id] } },
@@ -217,5 +230,69 @@ export default class ArticleService implements IArticleService {
     }
 
     return deleted;
+  };
+
+  getBlockedArticles = async (userId: string, page: number) => {
+    const limit = 6;
+    const skip = (page - 1) * limit;
+
+    const user = await this._userRepo.findById(userId);
+    if (!user) {
+      throw new AppError(HttpStatus.NOT_FOUND, messages.NOT_FOUND);
+    }
+    const blockedArticles = user.blockedArticles.slice(skip, limit);
+
+    const articles = await this._articleRepo.findAll(
+      { _id: { $in: blockedArticles } },
+      { sort: { createdAt: -1 }, skip, limit }
+    );
+
+    const totalPages = Math.ceil((user.blockedArticles.length || 0) / limit);
+    const updatedArticles = articles.map((ar) => ({
+      id: String(ar._id),
+      title: ar.title,
+      imageUrl: ar.imageUrl,
+      category: ar.category,
+      likes: ar.likes.length || 0,
+      dislikes: ar.dislikes.length || 0,
+      blocks: ar.blocks.length || 0,
+      tags: ar.tags,
+      createdAt: ar.createdAt,
+    }));
+    return {
+      articles: updatedArticles,
+      totalPages,
+      totalArticles: user.blockedArticles.length || 0,
+    };
+  };
+
+  unblockArticleInfo = async (userId: string, articleId: string) => {
+    const article = await this._articleRepo.findById(articleId);
+    if (!article) {
+      throw new AppError(HttpStatus.BAD_REQUEST, messages.NOT_FOUND);
+    }
+
+    const user = await this._userRepo.findById(userId);
+    if (!user) {
+      throw new AppError(HttpStatus.BAD_REQUEST, messages.NOT_FOUND);
+    }
+
+    const articleObjId = new mongoose.Types.ObjectId(articleId);
+    const userObjId = new mongoose.Types.ObjectId(userId);
+    const isBlocked = user.blockedArticles.some((id) => id.equals(articleObjId));
+    if (!isBlocked) {
+      throw new AppError(HttpStatus.BAD_REQUEST, messages.NOT_BLOCKED);
+    }
+
+    const updatedUser = await this._userRepo.updateById(userId, {
+      $pull: { blockedArticles: articleObjId },
+    });
+    await this._articleRepo.updateById(articleId, {
+      $pull: { blocks: userObjId },
+    });
+
+    if (!updatedUser) {
+      throw new AppError(HttpStatus.INTERNAL_SERVER_ERROR, messages.SERVER_ERROR);
+    }
   };
 }

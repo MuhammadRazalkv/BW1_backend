@@ -5,6 +5,8 @@ import { ArticleRepo } from '../repository/article.repo';
 import ArticleService from '../service/article.service';
 import { UserRepo } from '../repository/user.repo';
 import ArticleController from '../controller/article.controller';
+import { validateQuery } from '../middlewares/validate.query.middleware';
+import { idSchema } from '../dto/req.dto';
 
 const articleRepo = new ArticleRepo();
 const userRepo = new UserRepo();
@@ -20,6 +22,8 @@ articleRoute
   .get('/article-list', authMiddleware, articleController.articleList)
   .patch('/reaction', authMiddleware, articleController.toggleReaction)
   .patch('/block', authMiddleware, articleController.blockArticle)
-  .delete('/delete', authMiddleware, articleController.deleteArticle);
+  .delete('/delete', authMiddleware, articleController.deleteArticle)
+  .get('/blocked', authMiddleware, articleController.blockedArticles)
+  .patch('/unblock',authMiddleware, validateQuery(idSchema), articleController.unblockArticle)
 
 export default articleRoute;

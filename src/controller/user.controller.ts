@@ -1,21 +1,21 @@
 import { NextFunction, Request, Response } from 'express';
 import { validate } from '../utils/validate.zod';
-import { fieldSchemas, signupSchema, UpdateSchema } from '../dto/req.dto';
+import { EmailDTO, fieldSchemas, LoginDTO, SignupFormData, signupSchema, TokenDTO, UpdateSchema } from '../dto/req.dto';
 import { sendSuccess } from '../utils/response.util';
 import { HttpStatus } from '../constants/statusCodes';
 import { messages } from '../constants/httpStatusMessages';
 import { ExtendedRequest } from '../middlewares/auth.middleware';
 import { AppError } from '../utils/app.error';
-import { passwordSchema } from '../dto/password.dto';
+import { PasswordSchema } from '../dto/password.dto';
 import { IUserController } from './interfaces/user.controller.interface';
 import { IUserService } from '../service/interfaces/user.service.interface';
 
 export default class UserController implements IUserController {
   constructor(private _userService: IUserService) {}
 
-  createUser = async (req: Request, res: Response, next: NextFunction) => {
+  createUser = async (req: ExtendedRequest<SignupFormData>, res: Response, next: NextFunction) => {
     try {
-      const data = validate(signupSchema, req.body);
+      const data = req.validatedBody!;
       const email = await this._userService.newUser(data);
       sendSuccess(res, HttpStatus.CREATED, { email });
     } catch (error) {
@@ -23,29 +23,29 @@ export default class UserController implements IUserController {
     }
   };
 
-  verifyEmail = async (req: Request, res: Response, next: NextFunction) => {
+  verifyEmail = async (req: ExtendedRequest<any,TokenDTO>, res: Response, next: NextFunction) => {
     try {
-      const token = req.query.token;
-      await this._userService.verifyEmailAddress(token as string);
+      const token = req.validatedQuery?.token!;
+      await this._userService.verifyEmailAddress(token);
       sendSuccess(res, HttpStatus.OK, {}, messages.EMAIL_VERIFICATION_SUCCESS);
     } catch (error) {
       next(error);
     }
   };
 
-  resendVerificationEmail = async (req: Request, res: Response, next: NextFunction) => {
+  resendVerificationEmail = async (req: ExtendedRequest<EmailDTO>, res: Response, next: NextFunction) => {
     try {
-      const email = req.body.email;
-      await this._userService.resendVerificationEmailAddress(email as string);
+      const email = req.validatedBody?.email!;
+      await this._userService.resendVerificationEmailAddress(email);
       sendSuccess(res, HttpStatus.OK, {}, messages.EMAIL_HAS_SEND);
     } catch (error) {
       next(error);
     }
   };
 
-  login = async (req: Request, res: Response, next: NextFunction) => {
+  login = async (req: ExtendedRequest<LoginDTO>, res: Response, next: NextFunction) => {
     try {
-      const { email, phone, password } = req.body;
+      const { email, phone, password } = req.validatedBody!;
 
       const { accessToken, refreshToken } = await this._userService.userLogin(
         password,
@@ -66,10 +66,7 @@ export default class UserController implements IUserController {
 
   userInfo = async (req: ExtendedRequest, res: Response, next: NextFunction) => {
     try {
-      const id = req.id;
-      if (!id) {
-        throw new AppError(HttpStatus.BAD_REQUEST, messages.TOKEN_NOTFOUND);
-      }
+      const id = req.id!;
       const user = await this._userService.userProfile(id);
       sendSuccess(res, HttpStatus.OK, { user });
     } catch (error) {
@@ -79,10 +76,7 @@ export default class UserController implements IUserController {
 
   updateUser = async (req: ExtendedRequest, res: Response, next: NextFunction) => {
     try {
-      const id = req.id;
-      if (!id) {
-        throw new AppError(HttpStatus.BAD_REQUEST, messages.TOKEN_NOTFOUND);
-      }
+      const id = req.id!;
       const field = req.body.field as keyof UpdateSchema;
       const validatedValue = validate(fieldSchemas[field], req.body.value);
       const user = await this._userService.updateUserInfo(id, field, validatedValue as string);
@@ -95,10 +89,7 @@ export default class UserController implements IUserController {
 
   updatePreferences = async (req: ExtendedRequest, res: Response, next: NextFunction) => {
     try {
-      const id = req.id;
-      if (!id) {
-        throw new AppError(HttpStatus.BAD_REQUEST, messages.TOKEN_NOTFOUND);
-      }
+      const id = req.id!;
       const value = req.body;
       if (!value.length) {
         throw new AppError(HttpStatus.BAD_REQUEST, messages.NOT_ENOUGH_PREF);
@@ -114,10 +105,7 @@ export default class UserController implements IUserController {
 
   getPreferences = async (req: ExtendedRequest, res: Response, next: NextFunction) => {
     try {
-      const id = req.id;
-      if (!id) {
-        throw new AppError(HttpStatus.BAD_REQUEST, messages.TOKEN_NOTFOUND);
-      }
+      const id = req.id!;
 
       const preferences = await this._userService.getUserPreferences(id);
 
@@ -128,19 +116,16 @@ export default class UserController implements IUserController {
   };
 
   changePassword = async (
-    req: ExtendedRequest,
+    req: ExtendedRequest<PasswordSchema>,
     res: Response,
     next: NextFunction
   ): Promise<void> => {
     try {
-      const id = req.id;
-      if (!id) {
-        throw new AppError(HttpStatus.BAD_REQUEST, messages.TOKEN_NOTFOUND);
-      }
-      const data = validate(passwordSchema, req.body);
-      console.log(data);
+      const id = req.id!;
 
-      await this._userService.updatePassword(id, data.currentPassword, data.newPassword);
+      const {currentPassword,newPassword} = req.validatedBody!;
+
+      await this._userService.updatePassword(id, currentPassword, newPassword);
       sendSuccess(res, HttpStatus.OK, {}, messages.UPDATED);
     } catch (error) {
       next(error);
@@ -153,10 +138,7 @@ export default class UserController implements IUserController {
     next: NextFunction
   ): Promise<void> => {
     try {
-      const id = req.id;
-      if (!id) {
-        throw new AppError(HttpStatus.BAD_REQUEST, messages.TOKEN_NOTFOUND);
-      }
+      const id = req.id!;
       if (!req.file) {
         throw new AppError(HttpStatus.BAD_REQUEST, messages.NO_FILE_UPLOADED);
       }

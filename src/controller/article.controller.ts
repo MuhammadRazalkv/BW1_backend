@@ -8,6 +8,7 @@ import { AppError } from '../utils/app.error';
 import { sendSuccess } from '../utils/response.util';
 import { IArticleController } from './interfaces/article.controller.interface';
 import { IArticleService } from '../service/interfaces/article.service.interface';
+import { IdDTO } from '../dto/req.dto';
 
 export default class ArticleController implements IArticleController {
   constructor(private _articleService: IArticleService) {}
@@ -127,7 +128,6 @@ export default class ArticleController implements IArticleController {
         throw new AppError(HttpStatus.BAD_REQUEST, messages.TOKEN_NOTFOUND);
       }
       const { articleId, reaction } = req.body;
-      console.log('ArticleId: ',articleId)
       const { dislikes, likes, userReaction } = await this._articleService.changeReaction(
         userId,
         articleId,
@@ -163,6 +163,31 @@ export default class ArticleController implements IArticleController {
       const { articleId } = req.query;
       await this._articleService.deleteArticleInfo(userId, articleId as string);
       sendSuccess(res, HttpStatus.OK, {}, messages.DELETED);
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  blockedArticles = async (req: ExtendedRequest, res: Response, next: NextFunction) => {
+    try {
+      const id = req.id!;
+      const page = Number(req.query.page) || 1;
+      const { articles, totalArticles, totalPages } = await this._articleService.getBlockedArticles(
+        id,
+        page
+      );
+      sendSuccess(res, HttpStatus.OK, { articles, totalArticles, totalPages });
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  unblockArticle = async (req: ExtendedRequest<any, IdDTO>, res: Response, next: NextFunction) => {
+    try {
+      const id = req.id!;
+      const articleId = req.validatedQuery?.id!;
+      await this._articleService.unblockArticleInfo(id, articleId);
+      sendSuccess(res, HttpStatus.OK, {}, messages.UPDATED);
     } catch (error) {
       next(error);
     }
